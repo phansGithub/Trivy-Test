@@ -1,3 +1,5 @@
 FROM ubuntu:latest
+RUN apt-get update \
+&& apt-get install -y golang
 RUN go build .
 COPY . .
