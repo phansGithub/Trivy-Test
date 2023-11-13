@@ -22,7 +22,21 @@ jobs:
           format: 'sarif'
           output: 'trivy-results.sarif'
           severity: 'CRITICAL'
+      
+      - name: Generate tarballed image
+        run: | 
+          docker build -t hello-world-test:latest ./test/
+          docker save -o vul-image.tar hello-world-test:latest
 
+      - name: Run Trivy on tarballed image 
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: /github/workspace/vul-image.tar
+          scan-type: 'fs'
+          ignore-unfixed: false
+          format: 'sarif'
+          output: 'trivy-image-results.sarif'
+          severity: 'CRITICAL'
       - name: Upload Trivy scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v2
         with:
@@ -30,3 +44,6 @@ jobs:
 
       - name: Print sarif file
         run: cat trivy-results.sarif
+      
+      - name: Print second sarif file 
+        run: cat trivy-image-results.sarif
